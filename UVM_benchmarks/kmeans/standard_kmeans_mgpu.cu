@@ -161,21 +161,22 @@ __global__ void coarse_reduce(double* __restrict__ means_x,
 
 int main(int argc, const char* argv[]) {
   if (argc < 4) {
-    std::cerr << "usage: k-means <n> <k> [iterations]" << std::endl;
+    // std::cerr << "usage: k-means <n> <k> [iterations]" << std::endl;
+    std::cerr << "usage: k-means <file> <k> [iterations]" << std::endl;
     std::exit(EXIT_FAILURE);
   }
 
-  const auto n = std::atoi(argv[1]); // total number of points
+  // const auto n = std::atoi(argv[1]); // total number of points
   const auto k = std::atoi(argv[2]); // number of centroids
   const auto number_of_iterations = (argc == 5) ? std::atoi(argv[3]) : 300;
 
-  std::cout << "Total number of point:     " << n << std::endl;
+  // std::cout << "Total number of point:     " << n << std::endl;
   std::cout << "Total number of centroids: " << k << std::endl;
   std::cout << "Total number of iterations " << number_of_iterations << std::endl;
 
   // random generator
   std::mt19937 rng(std::random_device{}());
-  std::uniform_real_distribution<double> dist(-n, n);
+  // std::uniform_real_distribution<double> dist(-n, n);
 
   // TODO: generate data points on runtime, not from reading file
   std::vector<double> h_x; // contains all of the points
@@ -188,7 +189,7 @@ int main(int argc, const char* argv[]) {
   // }
 
   // TEST: run on multi-gpu vs run on single-gpu
-  std::ifstream stream(argv[2]); // data file path
+  std::ifstream stream(argv[1]); // data file path
   std::string line;
   while (std::getline(stream, line)) {
     std::istringstream line_stream(line);
@@ -301,7 +302,7 @@ int main(int argc, const char* argv[]) {
   int i;
 
   fp = fopen("Standardtimes.txt", "a");
-    fprintf(fp, "%0.6f\n", std_time_used);
+  fprintf(fp, "%0.6f\n", std_time_used);
   fclose(fp);
 
 	
