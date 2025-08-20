@@ -266,8 +266,6 @@ int main(int argc, const char* argv[]) {
     }
     cudaDeviceSynchronize();
 
-    printf("TEST fine reduce\n");
-
     for (int device = 0; device < device_count; device++) {
       coarse_reduce<<<1, k * blocks[device], coarse_shared_memory[device]>>>(
                                                             d_means.x,
@@ -279,8 +277,6 @@ int main(int argc, const char* argv[]) {
     }
     cudaDeviceSynchronize();
 
-    printf("TEST coarse reduce\n");
-
     // sum up distance from each devices
     std::vector<double> host_sums_x[device_count], host_sums_y[device_count];
     std::vector<int> host_counts[device_count];
@@ -290,24 +286,21 @@ int main(int argc, const char* argv[]) {
       host_sums_y[device] = std::vector<double>(k * blocks[device]);
       host_counts[device] = std::vector<int>(k * blocks[device]);
 
-      memset(&host_sums_x[device], 0, sizeof(double) * k * blocks[device]);
-      memset(&host_sums_y[device], 0, sizeof(double) * k * blocks[device]);
-      memset(&host_counts[device], 0, sizeof(int) * k * blocks[device]);
+      // memset(&host_sums_x[device], 0, sizeof(double) * k * blocks[device]);
+      // memset(&host_sums_y[device], 0, sizeof(double) * k * blocks[device]);
+      // memset(&host_counts[device], 0, sizeof(int) * k * blocks[device]);
     }
 
     for (int device = 0; device < device_count; device++) {
       memcpy(host_sums_x[device].data(), 
             d_sums[device].x, 
             d_sums[device].bytes);
-      std::cout << "TEST 1" << std::endl;
       memcpy(host_sums_y[device].data(), 
             d_sums[device].y, 
             d_sums[device].bytes);
-      std::cout << "TEST 2" << std::endl;
       memcpy(host_counts[device].data(), 
             d_counts[device],
             k * blocks[device] * sizeof(int));
-      std::cout << "TEST 3" << std::endl;
     }
 
     for (int cluster = 0; cluster < k; cluster++) {
