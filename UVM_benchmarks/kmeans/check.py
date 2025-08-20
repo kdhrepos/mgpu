@@ -3,14 +3,22 @@ import sys
 def compare_files(file1, file2):
     try:
         with open(file1, 'r', encoding='utf-8') as f1, open(file2, 'r', encoding='utf-8') as f2:
-            content1 = f1.read()
-            content2 = f2.read()
-
-        if content1 != content2:
-            print(f"Error: Files '{file1}' and '{file2}' have different contents!")
+            lines1 = f1.readlines()
+            lines2 = f2.readlines()
+        
+        if (len(lines1) != len(lines2)):
+            print("Number of line is different")
             sys.exit(1)
-        else:
-            print(f"Files '{file1}' and '{file2}' are identical.")
+        
+        for i, line in enumerate(lines1):
+            print(f"Content1: {lines1[i]}")
+            print(f"Content2: {lines2[i]}")
+
+            if (lines1[i] != lines2[i]):
+                print("Different line!")
+                sys.exit(1)
+
+        print("Identical content")
     
     except FileNotFoundError as e:
         print(f"Error: File not found - {e}")
@@ -22,6 +30,6 @@ def compare_files(file1, file2):
 if __name__ == "__main__":
 
     file1 = "results/standard/1000000_centroids.txt"
-    file2 = "results/standard/1000000_centroids_mgpu.txt"
+    file2 = "results/standard/1000000_centroids.txt"
     
     compare_files(file1, file2)
