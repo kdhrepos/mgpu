@@ -20,9 +20,6 @@ def compare_files(file1, file2):
         sys.exit(1)
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: python compare.py <file1> <file2>")
-        sys.exit(1)
 
     file1 = "results/standard/1000000_centroids.txt"
     file2 = "results/standard/1000000_centroids_mgpu.txt"
