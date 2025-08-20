@@ -213,8 +213,8 @@ int main(int argc, const char* argv[]) {
                              // which will be shared across devices.
 
   // shuffle points randomly
-  std::shuffle(h_x.begin(), h_x.end(), rng);
-  std::shuffle(h_y.begin(), h_y.end(), rng);
+  // std::shuffle(h_x.begin(), h_x.end(), rng);
+  // std::shuffle(h_y.begin(), h_y.end(), rng);
 
   size_t number_of_elements[device_count];
   int d_counts[device_count];

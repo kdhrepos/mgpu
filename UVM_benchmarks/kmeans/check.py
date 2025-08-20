@@ -31,6 +31,6 @@ def compare_files(file1, file2):
 if __name__ == "__main__":
 
     file1 = "results/standard/1000000_centroids.txt"
-    file2 = "results/standard/1000000_centroids.txt"
+    file2 = "results/standard/1000000_centroids_mgpu.txt"
     
     compare_files(file1, file2)
