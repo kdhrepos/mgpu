@@ -255,7 +255,7 @@ int main(int argc, const char* argv[]) {
       cudaSetDevice(device);
 
 #if DEBUG
-      std:cout << "GPU " << device << "runs fine reduce" << std::endl;
+      std::cout << "GPU " << device << "runs fine reduce" << std::endl;
 #endif
       fine_reduce<<<blocks[device], threads, fine_shared_memory>>>(
                                                           d_data[device].x,
@@ -286,7 +286,7 @@ int main(int argc, const char* argv[]) {
     for (int device = 0; device < device_count; device++) {
       cudaSetDevice(device);
 #if DEBUG
-      std:cout << "GPU " << device << "runs coarse reduce" << std::endl;
+      std::cout << "GPU " << device << "runs coarse reduce" << std::endl;
 #endif
       coarse_reduce<<<1, k * blocks[device], coarse_shared_memory[device]>>>(
                                                             d_means.x,
