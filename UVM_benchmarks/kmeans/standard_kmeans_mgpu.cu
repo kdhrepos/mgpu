@@ -161,44 +161,44 @@ __global__ void coarse_reduce(double* __restrict__ means_x,
 
 int main(int argc, const char* argv[]) {
   if (argc < 4) {
-    // std::cerr << "usage: k-means <n> <k> [iterations]" << std::endl;
-    std::cerr << "usage: k-means <file> <k> [iterations]" << std::endl;
+    std::cerr << "usage: k-means <n> <k> [iterations]" << std::endl;
+    // std::cerr << "usage: k-means <file> <k> [iterations]" << std::endl;
     std::exit(EXIT_FAILURE);
   }
 
-  // const auto n = std::atoi(argv[1]); // total number of points
+  const auto n = std::atoi(argv[1]); // total number of points
   const auto k = std::atoi(argv[2]); // number of centroids
   const auto number_of_iterations = std::atoi(argv[3]);
 
-  // std::cout << "Total number of point:     " << n << std::endl;
+  std::cout << "Total number of point:     " << n << std::endl;
   std::cout << "Total number of centroids: " << k << std::endl;
   std::cout << "Total number of iterations " << number_of_iterations << std::endl;
 
   // random generator
   std::mt19937 rng(std::random_device{}());
-  // std::uniform_real_distribution<double> dist(-n, n);
+  std::uniform_real_distribution<double> dist(-n, n);
 
   // TODO: generate data points on runtime, not from reading file
   std::vector<double> h_x; // contains all of the points
   std::vector<double> h_y; // contains all of the points
-  // for (int i=0; i<n; i++) { // generates n points
-  //   double x = dist(rng);
-  //   double y = dist(rng);
-  //   h_x.push_back(x); // point x
-  //   h_y.push_back(y); // point y
-  // }
-
-  // TEST: run on multi-gpu vs run on single-gpu
-  std::ifstream stream(argv[1]); // data file path
-  std::string line;
-  while (std::getline(stream, line)) {
-    std::istringstream line_stream(line);
-    float x, y;
-    uint16_t label;
-    line_stream >> x >> y >> label;
+  for (int i=0; i<n; i++) { // generates n points
+    double x = dist(rng);
+    double y = dist(rng);
     h_x.push_back(x); // point x
     h_y.push_back(y); // point y
   }
+
+  // TEST: run on multi-gpu vs run on single-gpu
+  // std::ifstream stream(argv[1]); // data file path
+  // std::string line;
+  // while (std::getline(stream, line)) {
+  //   std::istringstream line_stream(line);
+  //   float x, y;
+  //   uint16_t label;
+  //   line_stream >> x >> y >> label;
+  //   h_x.push_back(x); // point x
+  //   h_y.push_back(y); // point y
+  // }
 
   int device_count = 0;
   cudaGetDeviceCount(&device_count);
@@ -266,6 +266,8 @@ int main(int argc, const char* argv[]) {
     }
     cudaDeviceSynchronize();
 
+    std::cout << "Fine reduce done" << std::endl;
+
     for (int device = 0; device < device_count; device++) {
       coarse_reduce<<<1, k * blocks[device], coarse_shared_memory[device]>>>(
                                                             d_means.x,
@@ -277,6 +279,8 @@ int main(int argc, const char* argv[]) {
     }
     cudaDeviceSynchronize();
 
+    std::cout << "Coarse reduce done" << std::endl;
+
     // sum up distance from each devices
     std::vector<double> host_sums_x[device_count], host_sums_y[device_count];
     std::vector<int> host_counts[device_count];
@@ -285,10 +289,6 @@ int main(int argc, const char* argv[]) {
       host_sums_x[device] = std::vector<double>(k * blocks[device]);
       host_sums_y[device] = std::vector<double>(k * blocks[device]);
       host_counts[device] = std::vector<int>(k * blocks[device]);
-
-      // memset(&host_sums_x[device], 0, sizeof(double) * k * blocks[device]);
-      // memset(&host_sums_y[device], 0, sizeof(double) * k * blocks[device]);
-      // memset(&host_counts[device], 0, sizeof(int) * k * blocks[device]);
     }
 
     for (int device = 0; device < device_count; device++) {
