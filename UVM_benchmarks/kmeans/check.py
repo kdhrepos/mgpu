@@ -24,7 +24,7 @@ if __name__ == "__main__":
         print("Usage: python compare.py <file1> <file2>")
         sys.exit(1)
 
-    file1 = "results/standard/1000000_centroids"
-    file2 = "results/standard/1000000_centroids_mgpu"
+    file1 = "results/standard/1000000_centroids.txt"
+    file2 = "results/standard/1000000_centroids_mgpu.txt"
     
     compare_files(file1, file2)
