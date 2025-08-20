@@ -262,7 +262,7 @@ int main(int argc, const char* argv[]) {
                                                           d_sums[device].x,
                                                           d_sums[device].y,
                                                           k,
-                                                          *(d_counts));
+                                                          d_counts[device]);
     }
     cudaDeviceSynchronize();
 
@@ -275,7 +275,7 @@ int main(int argc, const char* argv[]) {
                                                             d_sums[device].x,
                                                             d_sums[device].y,
                                                             k,
-                                                            *(d_counts));
+                                                            d_counts[device]);
     }
     cudaDeviceSynchronize();
 
@@ -305,7 +305,7 @@ int main(int argc, const char* argv[]) {
             d_sums[device].bytes);
       std::cout << "TEST 2" << std::endl;
       memcpy(host_counts[device].data(), 
-            &d_counts[device],
+            d_counts[device],
             k * blocks[device] * sizeof(int));
       std::cout << "TEST 3" << std::endl;
     }
