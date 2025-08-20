@@ -213,8 +213,8 @@ int main(int argc, const char* argv[]) {
                              // which will be shared across devices.
 
   // shuffle points randomly
-  // std::shuffle(h_x.begin(), h_x.end(), rng);
-  // std::shuffle(h_y.begin(), h_y.end(), rng);
+  std::shuffle(h_x.begin(), h_x.end(), rng);
+  std::shuffle(h_y.begin(), h_y.end(), rng);
 
   size_t number_of_elements[device_count];
   int* d_counts[device_count];
@@ -231,6 +231,8 @@ int main(int argc, const char* argv[]) {
   
   const auto start = std::chrono::high_resolution_clock::now();
   for (int device = 0; device < device_count; device++) {
+    cudaSetDevice(device);
+    
     number_of_elements[device] = h_x.size() / device_count; // split points to each device
     blocks[device] = (number_of_elements[device] + threads - 1) / threads;
 
@@ -238,9 +240,7 @@ int main(int argc, const char* argv[]) {
     
     d_data[device] = Data(number_of_elements[device], h_x, h_y); // points on managed memory
     d_sums[device] = Data(k * blocks[device]); // sum of distance value from each block
-  }
 
-  for (int device = 0; device < device_count; device++) {
     cudaMallocManaged((void**)&d_counts[device], k * blocks[device] * sizeof(int));
     cudaMemset(&d_counts[device], 0, k * blocks[device] * sizeof(int));
   }
