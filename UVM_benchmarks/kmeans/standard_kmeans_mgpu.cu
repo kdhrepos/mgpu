@@ -278,6 +278,46 @@ int main(int argc, const char* argv[]) {
     cudaDeviceSynchronize();
 
     // sum up distance from each devices
+    int total_block_size = 0;
+    for (int device = 0; device < device_count; device++)
+      total_block_size += blocks[device];
+
+    std::vector<double> host_sums_x(k * total_block_size);
+    std::vector<double> host_sums_y(k * total_block_size);
+    std::vector<int> host_counts(k * total_block_size);
+
+    for (int device = 0; device < device_count; device++) {
+      
+      memcpy(host_sums_x.data() + device * k * blocks[device], 
+            d_sums[device].x, 
+            d_sums[device].bytes);
+      memcpy(host_sums_y.data() + device * k * blocks[device], 
+            d_sums[device].y, 
+            d_sums[device].bytes);
+      memcpy(host_counts.data() + device * k * blocks[device], 
+            &d_counts[device], 
+            k * blocks[device] * sizeof(int));
+    }
+
+    for (int cluster = 0; cluster < k; cluster++) {
+      double total_sum_x = 0;
+      double total_sum_y = 0;
+      int total_count = 0;
+      
+      for (int device = 0; device < device_count; device++) {
+        for (int block = 0; block < blocks[device]; block++) {
+          int idx = device * blocks[device] * k + block * k + cluster;
+          total_sum_x += host_sums_x[idx];
+          total_sum_y += host_sums_y[idx];
+          total_count += host_counts[idx];
+        }
+      }
+      
+      if (total_count > 0) {
+        d_means.x[cluster] = total_sum_x / total_count;
+        d_means.y[cluster] = total_sum_y / total_count;
+      }
+    }
   }
   cudaFree(d_counts);
 
