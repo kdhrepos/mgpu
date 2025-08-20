@@ -11,6 +11,7 @@ def compare_files(file1, file2):
             sys.exit(1)
         
         for i, line in enumerate(lines1):
+            print(f"{i}th line:")
             print(f"Content1: {lines1[i]}")
             print(f"Content2: {lines2[i]}")
 
