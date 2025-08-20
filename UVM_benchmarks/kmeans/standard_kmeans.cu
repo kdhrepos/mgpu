@@ -161,12 +161,12 @@ int main(int argc, const char* argv[]) {
     std::exit(EXIT_FAILURE);
   }
 
-  const auto k = std::atoi(argv[3]);
-  const auto number_of_iterations = (argc == 5) ? std::atoi(argv[4]) : 300;
+  const auto k = std::atoi(argv[2]);
+  const auto number_of_iterations = (argc == 5) ? std::atoi(argv[3]) : 300;
 
   std::vector<float> h_x;
   std::vector<float> h_y;
-  std::ifstream stream(argv[2]);
+  std::ifstream stream(argv[1]);
   std::string line;
   while (std::getline(stream, line)) {
     std::istringstream line_stream(line);
