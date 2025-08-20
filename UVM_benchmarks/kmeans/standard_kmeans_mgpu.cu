@@ -278,23 +278,23 @@ int main(int argc, const char* argv[]) {
     cudaDeviceSynchronize();
 
     // sum up distance from each devices
-    int total_block_size = 0;
-    for (int device = 0; device < device_count; device++)
-      total_block_size += blocks[device];
-
-    std::vector<double> host_sums_x(k * total_block_size);
-    std::vector<double> host_sums_y(k * total_block_size);
-    std::vector<int> host_counts(k * total_block_size);
+    std::vector<double> host_sums_x[device_count], host_sums_y[device_count];
+    std::vector<int> host_counts[device_count];
 
     for (int device = 0; device < device_count; device++) {
-      
-      memcpy(host_sums_x.data() + device * k * blocks[device], 
+      host_sums_x[device] = std::vector<double>(k * blocks[device]);
+      host_sums_y[device] = std::vector<double>(k * blocks[device]);
+      host_counts[device] = std::vector<int>(k * blocks[device]);
+    }
+
+    for (int device = 0; device < device_count; device++) {
+      memcpy(host_sums_x[device].data(), 
             d_sums[device].x, 
             d_sums[device].bytes);
-      memcpy(host_sums_y.data() + device * k * blocks[device], 
+      memcpy(host_sums_y[device].data(), 
             d_sums[device].y, 
             d_sums[device].bytes);
-      memcpy(host_counts.data() + device * k * blocks[device], 
+      memcpy(host_counts[device].data(), 
             &d_counts[device], 
             k * blocks[device] * sizeof(int));
     }
@@ -305,12 +305,13 @@ int main(int argc, const char* argv[]) {
       int total_count = 0;
       
       for (int device = 0; device < device_count; device++) {
-        for (int block = 0; block < blocks[device]; block++) {
-          int idx = device * blocks[device] * k + block * k + cluster;
-          total_sum_x += host_sums_x[idx];
-          total_sum_y += host_sums_y[idx];
-          total_count += host_counts[idx];
-        }
+        std::vector<double> vx = host_sums_x[device];
+        std::vector<double> vy = host_sums_y[device];
+        std::vector<int> vc = host_counts[device];
+
+        total_sum_x += std::accumulate(vx.begin(), vx.end(), 0);
+        total_sum_y += std::accumulate(vy.begin(), vy.end(), 0);
+        total_count += std::accumulate(vc.begin(), vc.end(), 0);
       }
       
       if (total_count > 0) {
