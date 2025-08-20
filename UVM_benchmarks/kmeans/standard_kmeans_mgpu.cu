@@ -266,7 +266,9 @@ int main(int argc, const char* argv[]) {
     }
     cudaDeviceSynchronize();
 
+#if DEBUG
     std::cout << "Fine reduce done" << std::endl;
+#endif
 
     for (int device = 0; device < device_count; device++) {
       cudaSetDevice(device);
@@ -280,7 +282,9 @@ int main(int argc, const char* argv[]) {
     }
     cudaDeviceSynchronize();
 
+#if DEBUG
     std::cout << "Coarse reduce done" << std::endl;
+#endif
 
     // sum up distance from each devices
     std::vector<double> host_sums_x[device_count], host_sums_y[device_count];
@@ -296,15 +300,21 @@ int main(int argc, const char* argv[]) {
       memcpy(host_sums_x[device].data(), 
             d_sums[device].x, 
             d_sums[device].bytes);
+#if DEBUG
       std::cout << "Test 1" << std::endl;
+#endif
       memcpy(host_sums_y[device].data(), 
             d_sums[device].y, 
             d_sums[device].bytes);
+#if DEBUG
       std::cout << "Test 2" << std::endl;
+#endif
       memcpy(host_counts[device].data(), 
             d_counts[device],
             k * blocks[device] * sizeof(int));
+#if DEBUG
       std::cout << "Test 3" << std::endl;
+#endif
     }
 
     for (int cluster = 0; cluster < k; cluster++) {
