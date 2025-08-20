@@ -253,6 +253,10 @@ int main(int argc, const char* argv[]) {
     // for each of centroid, distance are calculated and saved to d_sum
     for (int device = 0; device < device_count; device++) {
       cudaSetDevice(device);
+
+#if DEBUG
+      std:cout << "GPU " << device << "runs fine reduce" << std::endl;
+#endif
       fine_reduce<<<blocks[device], threads, fine_shared_memory>>>(
                                                           d_data[device].x,
                                                           d_data[device].y,
@@ -263,6 +267,15 @@ int main(int argc, const char* argv[]) {
                                                           d_sums[device].y,
                                                           k,
                                                           d_counts[device]);
+#if DEBUG                                                          
+        size_t freeMem, totalMem;
+        cudaMemGetInfo(&freeMem, &totalMem);
+        size_t usedMem = totalMem - freeMem;
+        
+        std::cout << "GPU " << device << ": " 
+                  << usedMem / (1024.0 * 1024.0) << " MB used / " 
+                  << totalMem / (1024.0 * 1024.0) << " MB total" << std::endl;
+#endif
     }
     cudaDeviceSynchronize();
 
@@ -272,6 +285,9 @@ int main(int argc, const char* argv[]) {
 
     for (int device = 0; device < device_count; device++) {
       cudaSetDevice(device);
+#if DEBUG
+      std:cout << "GPU " << device << "runs coarse reduce" << std::endl;
+#endif
       coarse_reduce<<<1, k * blocks[device], coarse_shared_memory[device]>>>(
                                                             d_means.x,
                                                             d_means.y,
