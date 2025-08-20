@@ -168,7 +168,7 @@ int main(int argc, const char* argv[]) {
 
   // const auto n = std::atoi(argv[1]); // total number of points
   const auto k = std::atoi(argv[2]); // number of centroids
-  const auto number_of_iterations = (argc == 5) ? std::atoi(argv[3]) : 300;
+  const auto number_of_iterations = std::atoi(argv[3]);
 
   // std::cout << "Total number of point:     " << n << std::endl;
   std::cout << "Total number of centroids: " << k << std::endl;
