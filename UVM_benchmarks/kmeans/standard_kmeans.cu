@@ -157,33 +157,49 @@ __global__ void coarse_reduce(float* __restrict__ means_x,
 
 int main(int argc, const char* argv[]) {
   if (argc < 4) {
-    std::cerr << "usage: k-means <data-file> <k> [iterations]" << std::endl;
+    std::cerr << "usage: k-means <n> <k> [iterations]" << std::endl;
+    // std::cerr << "usage: k-means <file> <k> [iterations]" << std::endl;
     std::exit(EXIT_FAILURE);
   }
 
-  const auto k = std::atoi(argv[2]);
-  const auto number_of_iterations = (argc == 5) ? std::atoi(argv[3]) : 300;
+  const auto n = std::atoi(argv[1]); // total number of points
+  const auto k = std::atoi(argv[2]); // number of centroids
+  const auto number_of_iterations = std::atoi(argv[3]);
+
+  std::cout << "Total number of point:     " << n << std::endl;
+  std::cout << "Total number of centroids: " << k << std::endl;
+  std::cout << "Total number of iterations " << number_of_iterations << std::endl;
+
+  // random generator
+  std::mt19937 rng(std::random_device{}());
+  std::uniform_real_distribution<double> dist(-n, n);
 
   std::vector<float> h_x;
   std::vector<float> h_y;
-  std::ifstream stream(argv[1]);
-  std::string line;
-  while (std::getline(stream, line)) {
-    std::istringstream line_stream(line);
-    float x, y;
-    uint16_t label;
-    line_stream >> x >> y >> label;
-    h_x.push_back(x);
-    h_y.push_back(y);
+  for (int i=0; i<n; i++) { // generates n points
+    double x = dist(rng);
+    double y = dist(rng);
+    h_x.push_back(x); // point x
+    h_y.push_back(y); // point y
   }
+  // std::ifstream stream(argv[1]);
+  // std::string line;
+  // while (std::getline(stream, line)) {
+  //   std::istringstream line_stream(line);
+  //   float x, y;
+  //   uint16_t label;
+  //   line_stream >> x >> y >> label;
+  //   h_x.push_back(x);
+  //   h_y.push_back(y);
+  // }
 
   const size_t number_of_elements = h_x.size();
 
   Data d_data(number_of_elements, h_x, h_y);
 
   std::mt19937 rng(std::random_device{}());
-  // std::shuffle(h_x.begin(), h_x.end(), rng);
-  // std::shuffle(h_y.begin(), h_y.end(), rng);
+  std::shuffle(h_x.begin(), h_x.end(), rng);
+  std::shuffle(h_y.begin(), h_y.end(), rng);
   Data d_means(k, h_x, h_y);
 
   const int threads = 1024;
