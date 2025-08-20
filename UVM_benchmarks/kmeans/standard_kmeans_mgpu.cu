@@ -285,18 +285,25 @@ int main(int argc, const char* argv[]) {
       host_sums_x[device] = std::vector<double>(k * blocks[device]);
       host_sums_y[device] = std::vector<double>(k * blocks[device]);
       host_counts[device] = std::vector<int>(k * blocks[device]);
+
+      memset(&host_sums_x[device], 0, sizeof(double) * k * blocks[device]);
+      memset(&host_sums_y[device], 0, sizeof(double) * k * blocks[device]);
+      memset(&host_counts[device], 0, sizeof(int) * k * blocks[device]);
     }
 
     for (int device = 0; device < device_count; device++) {
       memcpy(host_sums_x[device].data(), 
             d_sums[device].x, 
             d_sums[device].bytes);
+      std::cout << "TEST 1" << std::endl;
       memcpy(host_sums_y[device].data(), 
             d_sums[device].y, 
             d_sums[device].bytes);
+      std::cout << "TEST 2" << std::endl;
       memcpy(host_counts[device].data(), 
-            &d_counts[device], 
+            &d_counts[device],
             k * blocks[device] * sizeof(int));
+      std::cout << "TEST 3" << std::endl;
     }
 
     for (int cluster = 0; cluster < k; cluster++) {
