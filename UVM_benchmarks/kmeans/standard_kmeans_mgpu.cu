@@ -217,7 +217,7 @@ int main(int argc, const char* argv[]) {
   // std::shuffle(h_y.begin(), h_y.end(), rng);
 
   size_t number_of_elements[device_count];
-  int d_counts[device_count];
+  int* d_counts[device_count];
   Data d_data[device_count];
   Data d_sums[device_count];
   
@@ -262,9 +262,11 @@ int main(int argc, const char* argv[]) {
                                                           d_sums[device].x,
                                                           d_sums[device].y,
                                                           k,
-                                                          d_counts);
+                                                          *(d_counts));
     }
     cudaDeviceSynchronize();
+
+    printf("TEST fine reduce\n");
 
     for (int device = 0; device < device_count; device++) {
       coarse_reduce<<<1, k * blocks[device], coarse_shared_memory[device]>>>(
@@ -273,9 +275,11 @@ int main(int argc, const char* argv[]) {
                                                             d_sums[device].x,
                                                             d_sums[device].y,
                                                             k,
-                                                            d_counts);
+                                                            *(d_counts));
     }
     cudaDeviceSynchronize();
+
+    printf("TEST coarse reduce\n");
 
     // sum up distance from each devices
     std::vector<double> host_sums_x[device_count], host_sums_y[device_count];
